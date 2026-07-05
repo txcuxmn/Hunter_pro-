@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hunter Pro — Target the Trade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0C0708;
+    --panel:#170D0F;
+    --panel-2:#1D1113;
+    --line:#2E1719;
+    --red:#FF2A3A;
+    --red-deep:#7A0F16;
+    --gold:#E8B94A;
+    --bone:#F2E9E4;
+    --text-hi:#F5EDEC;
+    --text-lo:#A98D8F;
+    --text-faint:#6E5456;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--void);
+    color:var(--text-hi);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{font-family:'Rajdhani',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.01em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--red);color:#0C0708;}
+  :focus-visible{outline:2px solid var(--red);outline-offset:3px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  /* ---------- TICKER TAPE ---------- */
+  .tape-wrap{
+    background:#000000;
+    border-bottom:1px solid var(--line);
+    overflow:hidden;white-space:nowrap;padding:9px 0;
+  }
+  .tape{display:inline-flex;animation:scroll-tape 34s linear infinite;}
+  .tape span{
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:0.3px;
+    color:var(--text-lo);padding:0 22px;border-right:1px solid var(--line);
+  }
+  .tape span b{color:var(--bone);font-weight:600;margin-right:6px;}
+  .up{color:var(--bone);}
+  .down{color:var(--red);}
+  @keyframes scroll-tape{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+  /* ---------- NAV ---------- */
+  nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 5%;position:sticky;top:0;
+    background:rgba(12,7,8,0.85);backdrop-filter:blur(10px);
+    z-index:100;border-bottom:1px solid var(--line);
+  }
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Rajdhani',sans-serif;font-size:21px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;}
+  .logo .mark{
+    width:24px;height:24px;position:relative;
+  }
+  .logo .mark::before, .logo .mark::after{
+    content:'';position:absolute;border:2px solid var(--red);border-radius:50%;
+  }
+  .logo .mark::before{inset:0;}
+  .logo .mark::after{inset:7px;border-width:1.5px;}
+  .logo .tier{
+    font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+    color:var(--gold);border:1px solid var(--gold);padding:2px 6px;border-radius:3px;
+    letter-spacing:0.08em;text-transform:none;
+  }
+  .nav-links{display:flex;gap:34px;align-items:center;}
+  .nav-links a{font-size:14px;color:var(--text-lo);transition:color .2s;}
+  .nav-links a:hover{color:var(--text-hi);}
+  .btn{padding:11px 22px;border-radius:3px;font-size:14px;font-weight:600;cursor:pointer;border:none;
+    transition:transform .15s, box-shadow .15s, background .15s;display:inline-block;
+    font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:0.04em;}
+  .btn-primary{background:var(--red);color:#0C0708;}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(255,42,58,0.35);}
+  .btn-ghost{background:transparent;color:var(--text-hi);border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--text-lo);}
+  @media(max-width:860px){.nav-links{display:none;}}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;padding:90px 5% 60px;
+    display:grid;grid-template-columns:1.05fr 1fr;gap:50px;align-items:center;
+    max-width:1360px;margin:0 auto;
+  }
+  @media(max-width:960px){.hero{grid-template-columns:1fr;padding-top:56px;}}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);
+    letter-spacing:0.14em;text-transform:uppercase;display:flex;align-items:center;gap:9px;margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:'';width:7px;height:7px;border-radius:50%;background:var(--red);
+    animation:pulse-dot 1.8s infinite;
+  }
+  @keyframes pulse-dot{
+    0%{box-shadow:0 0 0 0 rgba(255,42,58,0.55);}
+    70%{box-shadow:0 0 0 8px rgba(255,42,58,0);}
+    100%{box-shadow:0 0 0 0 rgba(255,42,58,0);}
+  }
+  h1{font-size:clamp(38px,5vw,60px);line-height:0.98;letter-spacing:0;margin-bottom:22px;}
+  h1 .accent{color:var(--red);}
+  .hero p.sub{font-size:17px;line-height:1.6;color:var(--text-lo);max-width:520px;margin-bottom:32px;font-family:'Inter',sans-serif;text-transform:none;}
+  .hero-ctas{display:flex;gap:14px;margin-bottom:34px;flex-wrap:wrap;}
+  .btn-primary.lg, .btn-ghost.lg{padding:15px 28px;font-size:15px;}
+  .trust-row{display:flex;gap:26px;flex-wrap:wrap;align-items:center;}
+  .trust-row .item{display:flex;flex-direction:column;}
+  .trust-row .num{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:20px;}
+  .trust-row .lbl{font-size:12px;color:var(--text-faint);}
+
+  /* ---------- CHART CARD w/ RETICLE SIGNATURE ---------- */
+  .chart-card{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line);border-radius:6px;
+    padding:20px 20px 14px;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,0.75);
+    position:relative;overflow:hidden;
+  }
+  .chart-card::before{
+    content:'';position:absolute;inset:0;
+    background:
+      linear-gradient(rgba(255,42,58,0.035) 1px, transparent 1px) 0 0/100% 24px,
+      linear-gradient(90deg, rgba(255,42,58,0.035) 1px, transparent 1px) 0 0/24px 100%;
+    pointer-events:none;
+  }
+  .chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;position:relative;}
+  .chart-head .pair{font-weight:600;font-size:14px;font-family:'JetBrains Mono',monospace;}
+  .chart-head .price{font-family:'JetBrains Mono',monospace;color:var(--red);font-size:14px;}
+  .chart-stage{position:relative;}
+  canvas{width:100%;display:block;}
+  .reticle{
+    position:absolute;width:54px;height:54px;
+    border:1.5px solid var(--red);border-radius:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;opacity:0;
+    transition:left 1.4s cubic-bezier(.65,0,.35,1), top 1.4s cubic-bezier(.65,0,.35,1), opacity .3s;
+  }
+  .reticle::before,.reticle::after{
+    content:'';position:absolute;background:var(--red);
+  }
+  .reticle::before{width:1px;height:14px;top:-18px;left:50%;transform:translateX(-50%);}
+  .reticle::after{width:14px;height:1px;left:-18px;top:50%;transform:translateY(-50%);}
+  .reticle .r2{position:absolute;inset:-1px;border:1.5px solid var(--red);border-radius:50%;}
+  .reticle .r3{position:absolute;top:-18px;right:-18px;width:1px;height:14px;background:var(--red);display:none;}
+  .reticle.active{opacity:1;}
+  .chart-legend{
+    display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);
+    font-size:11.5px;color:var(--text-faint);position:relative;
+  }
+  .chart-legend span{display:flex;align-items:center;gap:6px;}
+  .dot{width:8px;height:8px;border-radius:50%;}
+  .dot.bull{background:var(--bone);}
+  .dot.bear{background:var(--red);}
+
+  /* ---------- SECTION SHELL ---------- */
+  section{max-width:1200px;margin:0 auto;padding:100px 5%;}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-faint);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;}
+  .sec-title{font-size:clamp(26px,3.4vw,38px);max-width:640px;margin-bottom:16px;line-height:1.05;}
+  .sec-sub{color:var(--text-lo);font-size:15.5px;max-width:560px;line-height:1.6;font-family:'Inter',sans-serif;text-transform:none;}
+
+  /* ---------- STATS ---------- */
+  .stats-bar{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    margin:0 auto;max-width:1200px;
+  }
+  .stats-bar .stat{padding:40px 24px;text-align:center;border-right:1px solid var(--line);}
+  .stats-bar .stat:last-child{border-right:none;}
+  .stats-bar .num{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:var(--red);}
+  .stats-bar .lbl{font-size:12.5px;color:var(--text-lo);margin-top:8px;}
+  @media(max-width:760px){.stats-bar{grid-template-columns:repeat(2,1fr);}.stats-bar .stat:nth-child(2){border-right:none;}}
+
+  /* ---------- HOW IT WORKS ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:50px;}
+  @media(max-width:860px){.steps{grid-template-columns:1fr;}}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:28px 26px;position:relative;}
+  .step .n{font-family:'JetBrains Mono',monospace;color:var(--red);font-size:13px;margin-bottom:16px;display:block;text-transform:none;}
+  .step h3{font-size:20px;margin-bottom:10px;}
+  .step p{color:var(--text-lo);font-size:14.5px;line-height:1.6;font-family:'Inter',sans-serif;text-transform:none;}
+
+  /* ---------- FEATURES ---------- */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:50px;}
+  @media(max-width:860px){.feat-grid{grid-template-columns:1fr;}}
+  .feat{background:var(--panel);padding:32px 28px;}
+  .feat .icon{
+    width:38px;height:38px;border-radius:3px;background:rgba(255,42,58,0.1);
+    display:flex;align-items:center;justify-content:center;margin-bottom:18px;color:var(--red);font-size:16px;
+  }
+  .feat h3{font-size:17px;margin-bottom:9px;}
+  .feat p{font-size:14px;color:var(--text-lo);line-height:1.6;font-family:'Inter',sans-serif;text-transform:none;}
+
+  /* ---------- PERFORMANCE PANEL ---------- */
+  .perf{
+    background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:36px;margin-top:50px;
+    display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;
+  }
+  @media(max-width:860px){.perf{grid-template-columns:1fr;}}
+  .perf-list{display:flex;flex-direction:column;gap:20px;}
+  .perf-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:14px;}
+  .perf-row .lbl{color:var(--text-lo);font-size:14px;}
+  .perf-row .val{font-family:'JetBrains Mono',monospace;font-weight:600;}
+  .disclaimer-note{font-size:12px;color:var(--text-faint);margin-top:18px;line-height:1.6;font-family:'Inter',sans-serif;}
+
+  /* ---------- PRICING ---------- */
+  .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:50px;}
+  @media(max-width:960px){.pricing-grid{grid-template-columns:1fr;}}
+  .plan{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:32px 28px;display:flex;flex-direction:column;}
+  .plan.featured{
+    border-color:var(--red);
+    background:linear-gradient(180deg,rgba(255,42,58,0.07),var(--panel) 40%);
+    position:relative;
+  }
+  .plan.featured::before{
+    content:'PRIMARY TARGET';position:absolute;top:-11px;left:28px;
+    background:var(--red);color:#0C0708;font-family:'JetBrains Mono',monospace;
+    font-size:10px;font-weight:700;letter-spacing:0.08em;padding:4px 10px;border-radius:3px;
+  }
+  .plan h3{font-size:15px;color:var(--text-lo);margin-bottom:14px;letter-spacing:0.05em;}
+  .plan .price{font-family:'JetBrains Mono',monospace;font-size:38px;font-weight:600;margin-bottom:4px;text-transform:none;}
+  .plan .price span{font-size:14px;color:var(--text-faint);font-weight:400;}
+  .plan .desc{font-size:13.5px;color:var(--text-faint);margin-bottom:24px;font-family:'Inter',sans-serif;}
+  .plan ul{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:28px;flex:1;}
+  .plan li{font-size:14px;color:var(--text-lo);display:flex;gap:10px;align-items:flex-start;font-family:'Inter',sans-serif;}
+  .plan li::before{content:'✓';color:var(--red);font-weight:700;}
+  .plan .btn{width:100%;text-align:center;}
+
+  /* ---------- TESTIMONIALS ---------- */
+  .test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:50px;}
+  @media(max-width:860px){.test-grid{grid-template-columns:1fr;}}
+  .test{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:26px;}
+  .test .stars{color:var(--gold);font-size:13px;margin-bottom:14px;letter-spacing:2px;}
+  .test p{font-size:14.5px;line-height:1.6;color:var(--text-hi);margin-bottom:18px;font-family:'Inter',sans-serif;}
+  .test .who{display:flex;align-items:center;gap:10px;}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;}
+  .who .name{font-size:13.5px;font-weight:600;font-family:'Inter',sans-serif;}
+  .who .role{font-size:12px;color:var(--text-faint);font-family:'Inter',sans-serif;}
+
+  /* ---------- FAQ ---------- */
+  .faq-item{border-bottom:1px solid var(--line);padding:22px 0;}
+  .faq-q{display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:16px;font-weight:500;font-family:'Inter',sans-serif;}
+  .faq-q .plus{font-family:'JetBrains Mono',monospace;color:var(--red);transition:transform .25s;font-size:18px;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease, padding .3s ease;font-size:14.5px;color:var(--text-lo);line-height:1.6;font-family:'Inter',sans-serif;}
+  .faq-item.open .faq-a{max-height:200px;padding-top:14px;}
+
+  /* ---------- FINAL CTA ---------- */
+  .cta-final{
+    text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:70px 30px;margin:0 auto 100px;max-width:1200px;position:relative;overflow:hidden;
+  }
+  .cta-final::after{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 50% 0%, rgba(255,42,58,0.14), transparent 60%);
+    pointer-events:none;
+  }
+  .cta-final h2{font-size:clamp(26px,4vw,40px);margin-bottom:16px;position:relative;}
+  .cta-final p{color:var(--text-lo);margin-bottom:30px;position:relative;font-family:'Inter',sans-serif;text-transform:none;}
+  .cta-final .hero-ctas{justify-content:center;position:relative;}
+
+  /* ---------- FOOTER ---------- */
+  footer{border-top:1px solid var(--line);padding:50px 5% 30px;}
+  .foot-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;padding-bottom:40px;}
+  @media(max-width:760px){.foot-grid{grid-template-columns:1fr 1fr;}}
+  .foot-grid h4{font-size:13px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-faint);margin-bottom:16px;font-family:'JetBrains Mono',monospace;}
+  .foot-grid a{display:block;font-size:14px;color:var(--text-lo);margin-bottom:10px;font-family:'Inter',sans-serif;}
+  .foot-grid a:hover{color:var(--text-hi);}
+  .foot-bottom{max-width:1200px;margin:0 auto;border-top:1px solid var(--line);padding-top:26px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+  .foot-bottom p{font-size:12px;color:var(--text-faint);font-family:'Inter',sans-serif;}
+  .risk-box{
+    max-width:1200px;margin:0 auto 30px;background:#0A0505;border:1px solid var(--line);border-radius:6px;
+    padding:20px 22px;font-size:12px;line-height:1.7;color:var(--text-faint);font-family:'Inter',sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div class="tape-wrap"><div class="tape" id="tape"></div></div>
+
+<nav>
+  <div class="logo"><div class="mark"></div>HUNTER PRO <span class="tier">SIGNAL</span></div>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#performance">Performance</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="#pricing" class="btn btn-primary">Start hunting</a>
+</nav>
+
+<div class="hero">
+  <div>
+    <div class="eyebrow">Live · Scanning 4,200+ instruments</div>
+    <h1>Every setup<br>leaves a <span class="accent">trace.</span></h1>
+    <p class="sub">Hunter Pro tracks volume, momentum, and structure across every major market in real time, then locks onto the exact moment a setup confirms — entry, stop, and target, delivered the second it's ready.</p>
+    <div class="hero-ctas">
+      <a href="#pricing" class="btn btn-primary lg">Get today's signals</a>
+      <a href="#how" class="btn btn-ghost lg">See how it works</a>
+    </div>
+    <div class="trust-row">
+      <div class="item"><span class="num">18,400+</span><span class="lbl">Active hunters</span></div>
+      <div class="item"><span class="num">4.8/5</span><span class="lbl">Trader rating</span></div>
+      <div class="item"><span class="num">3</span><span class="lbl">Markets: FX · Crypto · Equities</span></div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-head">
+      <span class="pair">XAU/USD · 15m</span>
+      <span class="price">$4,187.20</span>
+    </div>
+    <div class="chart-stage">
+      <canvas id="chart" height="260"></canvas>
+      <div class="reticle" id="reticle"><div class="r2"></div></div>
+    </div>
+    <div class="chart-legend">
+      <span><span class="dot bull"></span> Long signal</span>
+      <span><span class="dot bear"></span> Short signal</span>
+      <span>Updated live from scan engine</span>
+    </div>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="num">71%</div><div class="lbl">Historical signal win rate*</div></div>
+  <div class="stat"><div class="num">6–12</div><div class="lbl">Signals delivered per day</div></div>
+  <div class="stat"><div class="num">40ms</div><div class="lbl">Average alert latency</div></div>
+  <div class="stat"><div class="num">24/5</div><div class="lbl">Market coverage</div></div>
+</div>
+
+<section id="how">
+  <div class="kicker">Process</div>
+  <h2 class="sec-title">Three moves from open tape to clean entry</h2>
+  <p class="sec-sub">Hunter Pro is built to remove decisions, not add them. The scan engine does the watching; you do the deciding.</p>
+  <div class="steps">
+    <div class="step"><span class="n mono">01 / Scan</span><h3>Engine reads the tape</h3><p>Volume shifts, momentum breaks, and structure patterns are scored across thousands of instruments every second.</p></div>
+    <div class="step"><span class="n mono">02 / Lock</span><h3>Setup gets confirmed</h3><p>Only setups that clear a strict confluence threshold — trend, volume, and volatility filters — become an alert.</p></div>
+    <div class="step"><span class="n mono">03 / Strike</span><h3>You get entry, stop, target</h3><p>Delivered to the app, Telegram, or SMS in seconds — with a defined risk level so you size the trade yourself.</p></div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="kicker">Inside the engine</div>
+  <h2 class="sec-title">Built like a scope, priced like a tool</h2>
+  <p class="sec-sub">Every feature exists to shorten the distance between a real setup forming and you acting on it.</p>
+  <div class="feat-grid">
+    <div class="feat"><div class="icon">◆</div><h3>Multi-market scanning</h3><p>Crypto, forex, and equities watched simultaneously — one dashboard, no tab-switching.</p></div>
+    <div class="feat"><div class="icon">▲</div><h3>Defined risk on every call</h3><p>Each signal ships with an entry, stop-loss, and target — never a bare directional guess.</p></div>
+    <div class="feat"><div class="icon">●</div><h3>Real-time delivery</h3><p>Push, Telegram, and SMS alerts land the moment a setup confirms, not minutes later.</p></div>
+    <div class="feat"><div class="icon">◼</div><h3>Backtested logic</h3><p>Every strategy behind the engine is tested against years of historical tape before it goes live.</p></div>
+    <div class="feat"><div class="icon">◈</div><h3>Volatility-aware sizing</h3><p>Targets and stops adapt to current market volatility instead of using fixed pip or percent rules.</p></div>
+    <div class="feat"><div class="icon">✦</div><h3>Private signal room</h3><p>A focused feed and community of active users — no spam, no pump-and-dump chatter.</p></div>
+  </div>
+</section>
+
+<section id="performance">
+  <div class="kicker">Track record</div>
+  <h2 class="sec-title">Where the numbers come from</h2>
+  <p class="sec-sub">Transparency on methodology matters more to us than a flashy headline stat.</p>
+  <div class="perf">
+    <div class="perf-list">
+      <div class="perf-row"><span class="lbl">Signals tracked (rolling 12mo)</span><span class="val">2,140</span></div>
+      <div class="perf-row"><span class="lbl">Win rate*</span><span class="val" style="color:var(--red)">71%</span></div>
+      <div class="perf-row"><span class="lbl">Average risk:reward</span><span class="val">1 : 2.3</span></div>
+      <div class="perf-row"><span class="lbl">Markets covered</span><span class="val">FX · Crypto · Equities</span></div>
+      <div class="perf-row"><span class="lbl">Avg. signals / week</span><span class="val">38</span></div>
+      <div class="disclaimer-note">*Win rate reflects signals that reached target before stop, based on internal historical tracking. Past performance does not guarantee future results. See full disclaimer below.</div>
+    </div>
+    <div><canvas id="perfChart" height="220"></canvas></div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="kicker">Pricing</div>
+  <h2 class="sec-title">Pick your hunting ground</h2>
+  <p class="sec-sub">Cancel any time. No lock-in contracts, no hidden fees.</p>
+  <div class="pricing-grid">
+    <div class="plan">
+      <h3>Scout</h3>
+      <div class="price">$0<span>/mo</span></div>
+      <div class="desc">Get a feel for the engine before you commit.</div>
+      <ul><li>1 market of your choice</li><li>2 signals per day (delayed 15 min)</li><li>Community signal room (read-only)</li></ul>
+      <a href="#" class="btn btn-ghost">Start free</a>
+    </div>
+    <div class="plan featured">
+      <h3>Hunter Pro</h3>
+      <div class="price">$39<span>/mo</span></div>
+      <div class="desc">The full engine, real time, all markets.</div>
+      <ul><li>All markets: FX, crypto, equities</li><li>Unlimited real-time signals</li><li>Entry, stop &amp; target on every alert</li><li>Telegram + SMS + push delivery</li><li>Full performance history access</li></ul>
+      <a href="#" class="btn btn-primary">Start 7-day trial</a>
+    </div>
+    <div class="plan">
+      <h3>Syndicate</h3>
+      <div class="price">$99<span>/mo</span></div>
+      <div class="desc">For active traders running size across desks.</div>
+      <ul><li>Everything in Hunter Pro</li><li>API access for auto-execution</li><li>Priority signal delivery (lowest latency)</li><li>1:1 monthly strategy call</li></ul>
+      <a href="#" class="btn btn-ghost">Talk to us</a>
+    </div>
+  </div>
+</section>
+
+<section id="testimonials">
+  <div class="kicker">From the signal room</div>
+  <h2 class="sec-title">Traders who stopped guessing</h2>
+  <div class="test-grid">
+    <div class="test"><div class="stars">★★★★★</div><p>"I used to sit in front of five charts at once. Now I get one alert and I know exactly where my stop goes."</p><div class="who"><div class="avatar">MK</div><div><div class="name">M. Kessler</div><div class="role">Swing trader, 3 years</div></div></div></div>
+    <div class="test"><div class="stars">★★★★★</div><p>"The risk:reward on the alerts is the part I actually trust — it's consistent, not just a lucky headline number."</p><div class="who"><div class="avatar">RA</div><div><div class="name">R. Adeyemi</div><div class="role">Part-time FX trader</div></div></div></div>
+    <div class="test"><div class="stars">★★★★☆</div><p>"Took a week to trust the process instead of second-guessing every alert. Once I did, it just became routine."</p><div class="who"><div class="avatar">JL</div><div><div class="name">J. Lindqvist</div><div class="role">Crypto trader</div></div></div></div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="kicker">Questions</div>
+  <h2 class="sec-title">Before you start hunting</h2>
+  <div class="faq-list">
+    <div class="faq-item"><div class="faq-q">Is Hunter Pro financial advice? <span class="plus">+</span></div><div class="faq-a">No. Signals are informational and educational tools reflecting our engine's analysis. You decide whether, when, and how much to trade — always at your own risk.</div></div>
+    <div class="faq-item"><div class="faq-q">Which markets and brokers does it work with? <span class="plus">+</span></div><div class="faq-a">Signals cover major forex pairs, top crypto assets, and large-cap equities. Since alerts are informational, they work alongside any broker or exchange you already use.</div></div>
+    <div class="faq-item"><div class="faq-q">Can I cancel anytime? <span class="plus">+</span></div><div class="faq-a">Yes — all plans are month-to-month with no lock-in. Cancel from your account settings and you won't be billed again.</div></div>
+    <div class="faq-item"><div class="faq-q">How is the win rate calculated? <span class="plus">+</span></div><div class="faq-a">We track every signal from alert to outcome and log whether target or stop was hit first, across a rolling 12-month window. Methodology notes are available in your dashboard.</div></div>
+  </div>
+</section>
+
+<div class="cta-final">
+  <h2>Your next target is already forming.</h2>
+  <p>Join the signal room and see what the engine is watching right now.</p>
+  <div class="hero-ctas"><a href="#pricing" class="btn btn-primary lg">Start 7-day trial</a><a href="#how" class="btn btn-ghost lg">Learn how it works</a></div>
+</div>
+
+<footer>
+  <div class="risk-box"><strong>Risk disclosure:</strong> Trading financial instruments carries a high level of risk and may not be suitable for all investors. Signals and content provided by Hunter Pro are for informational and educational purposes only and do not constitute financial advice or a recommendation to buy or sell any instrument. Past performance, including any win-rate or track-record figures shown on this page, is not indicative of future results. Only trade with capital you can afford to lose, and consider seeking advice from a licensed financial advisor before making investment decisions.</div>
+  <div class="foot-grid">
+    <div><div class="logo" style="margin-bottom:14px;"><div class="mark"></div>HUNTER PRO</div><p style="color:var(--text-faint);font-size:13px;max-width:280px;line-height:1.6;font-family:'Inter',sans-serif;">Real-time trade signals across forex, crypto, and equities — built for traders who want clarity, not noise.</p></div>
+    <div><h4>Product</h4><a href="#how">How it works</a><a href="#features">Features</a><a href="#pricing">Pricing</a></div>
+    <div><h4>Company</h4><a href="#">About</a><a href="#">Careers</a><a href="#">Contact</a></div>
+    <div><h4>Legal</h4><a href="#">Terms of service</a><a href="#">Privacy policy</a><a href="#">Risk disclosure</a></div>
+  </div>
+  <div class="foot-bottom"><p>© 2026 Hunter Pro. All rights reserved.</p><p>Not investment advice. Trade at your own risk.</p></div>
+</footer>
+
+<script>
+const symbols = [
+  ['XAU/USD','+0.44%','up'],['BTC/USD','+2.14%','up'],['EUR/USD','+0.12%','up'],
+  ['AAPL','+1.03%','up'],['ETH/USD','-0.86%','down'],['GBP/USD','-0.21%','down'],
+  ['TSLA','-1.67%','down'],['SOL/USD','+4.32%','up'],['NAS100','+0.58%','up'],
+  ['USD/JPY','+0.09%','up'],['NVDA','+2.88%','up'],['WTI/USD','-0.73%','down']
+];
+function buildTape(){
+  const el = document.getElementById('tape');
+  let html = '';
+  for(let i=0;i<2;i++){
+    symbols.forEach(([s,p,d])=>{ html += `<span><b>${s}</b><span class="${d}">${p}</span></span>`; });
+  }
+  el.innerHTML = html;
+}
+buildTape();
+
+let lastCandleGeom = null;
+
+function drawCandles(canvasId, opts={}){
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const w = rect.width || canvas.parentElement.clientWidth;
+  const h = opts.height || 260;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  canvas.style.height = h+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  const n = opts.count || 46;
+  let price = opts.start || 100;
+  const candles = [];
+  for(let i=0;i<n;i++){
+    const vol = (Math.random()-0.48) * (opts.volatility || 3);
+    const open = price;
+    const close = open + vol;
+    const high = Math.max(open,close) + Math.random()*1.2;
+    const low = Math.min(open,close) - Math.random()*1.2;
+    candles.push({open,close,high,low});
+    price = close;
+  }
+  const min = Math.min(...candles.map(c=>c.low));
+  const max = Math.max(...candles.map(c=>c.high));
+  const pad = (max-min)*0.12;
+  const yMin = min-pad, yMax = max+pad;
+  const cw = w/n;
+  function y(v){ return h - ((v-yMin)/(yMax-yMin))*h; }
+
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.045)';
+  ctx.lineWidth = 1;
+  for(let g=1; g<4; g++){ const gy=(h/4)*g; ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(w,gy); ctx.stroke(); }
+
+  const signalIdxs = opts.signals || [];
+  let signalPositions = [];
+
+  candles.forEach((c,i)=>{
+    const x = i*cw + cw/2;
+    const bull = c.close >= c.open;
+    ctx.strokeStyle = bull ? '#F2E9E4' : '#FF2A3A';
+    ctx.fillStyle = bull ? '#F2E9E4' : '#FF2A3A';
+    ctx.beginPath(); ctx.moveTo(x, y(c.high)); ctx.lineTo(x, y(c.low)); ctx.stroke();
+    const bodyTop = y(Math.max(c.open,c.close));
+    const bodyBot = y(Math.min(c.open,c.close));
+    const bw = Math.max(cw*0.55, 2);
+    ctx.fillRect(x-bw/2, bodyTop, bw, Math.max(bodyBot-bodyTop,1.5));
+  });
+
+  signalIdxs.forEach(({idx,type})=>{
+    if(idx>=candles.length) return;
+    const c = candles[idx];
+    const x = idx*cw + cw/2;
+    const isLong = type==='long';
+    const py = isLong ? y(c.low)+16 : y(c.high)-16;
+    ctx.fillStyle = isLong ? '#F2E9E4' : '#FF2A3A';
+    ctx.beginPath();
+    if(isLong){ ctx.moveTo(x, py+8); ctx.lineTo(x-6, py+18); ctx.lineTo(x+6, py+18); }
+    else { ctx.moveTo(x, py-8); ctx.lineTo(x-6, py-18); ctx.lineTo(x+6, py-18); }
+    ctx.closePath(); ctx.fill();
+    signalPositions.push({x, y: py, type});
+  });
+
+  return {count:candles.length, signalPositions, w, h};
+}
+
+function moveReticleAcross(positions){
+  const reticle = document.getElementById('reticle');
+  if(!reticle || !positions.length) return;
+  let i = 0;
+  reticle.classList.add('active');
+  function step(){
+    const p = positions[i % positions.length];
+    reticle.style.left = p.x + 'px';
+    reticle.style.top = p.y + 'px';
+    i++;
+  }
+  step();
+  clearInterval(window.__reticleInterval);
+  window.__reticleInterval = setInterval(step, 2600);
+}
+
+function renderHero(){
+  const geom = drawCandles('chart', {
+    count:46, start:4187, volatility:6, height:260,
+    signals:[{idx:14,type:'long'},{idx:29,type:'short'},{idx:41,type:'long'}]
+  });
+  moveReticleAcross(geom.signalPositions);
+}
+function renderPerf(){
+  drawCandles('perfChart', {
+    count:34, start:100, volatility:2.2, height:220,
+    signals:[{idx:9,type:'long'},{idx:22,type:'long'}]
+  });
+}
+renderHero();
+renderPerf();
+window.addEventListener('resize', ()=>{ renderHero(); renderPerf(); });
+setInterval(renderHero, 8000);
+
+document.querySelectorAll('.faq-item').forEach(item=>{
+  item.querySelector('.faq-q').addEventListener('click', ()=>{
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!isOpen) item.classList.add('open');
+  });
+});
+</script>
+</body>
+</html>
